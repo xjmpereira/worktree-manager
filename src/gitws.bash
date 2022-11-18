@@ -119,7 +119,21 @@ function __gitws_add {
         __gitws_add_help
         return 1
     fi
-    printf "TODO: gitws add\n"
+
+    BRANCH_TO_ADD=$1
+
+    # Verify that we are inside a gitws directory
+    __GITWS_ROOT_DIR=$(__gitws_root)
+    if [ -z ${__GITWS_ROOT_DIR} ]; then
+        printf "\e[7mError:\e[0m Not inside a gitws workspace.\n\n"
+        return 1
+    fi
+
+    # Setup variables from gitws workspace
+    source ${__GITWS_ROOT_DIR}/.gitws
+
+    # Add the new branch into worktree
+    git -C ${GITWS_GIT_DIR} worktree add ${GITWS_ROOT_DIR}/${BRANCH_TO_ADD}/${GITWS_ROOT_PREFIX} ${BRANCH_TO_ADD}
 }
 
 #==============================================================================
