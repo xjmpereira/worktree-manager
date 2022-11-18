@@ -155,7 +155,39 @@ function __gitws_rm {
         __gitws_rm_help
         return 1
     fi
-    printf "TODO: gitws rm\n"
+
+    BRANCH_TO_REMOVE=$1
+
+    # Verify that we are inside a gitws directory
+    __GITWS_ROOT_DIR=$(__gitws_root)
+    if [ -z ${__GITWS_ROOT_DIR} ]; then
+        printf "\e[7mError:\e[0m Not inside a gitws workspace.\n\n"
+        return 1
+    fi
+
+    # Setup variables from gitws workspace
+    source ${__GITWS_ROOT_DIR}/.gitws
+
+    # Remove the branch from worktree
+    printf "Removing branch from worktree\n"
+    git -C ${GITWS_GIT_DIR} worktree remove ${GITWS_ROOT_DIR}/${BRANCH_TO_REMOVE}/${GITWS_ROOT_PREFIX}
+
+    # Clean the empty directories
+    printf "Cleaning up directories on workspace\n"
+    DIR=${GITWS_ROOT_DIR}/${BRANCH_TO_REMOVE}
+    while [ ! -z "$DIR" ] && [ ! -f "$DIR/.gitws" ]; do
+        if [ ! -z "$(find ${DIR} -type d -empty)" ]; then
+            # Sanity check the DIR were are going to remove is inside the GITWS_ROOT_DIR
+            if [ ! -z "$(echo "${DIR}" | grep "^${GITWS_ROOT_DIR}" )" ]; then
+                rm -d ${DIR}
+            else
+                printf "\e[7mError:\e[0m Something went terribly wrong. There may be some empty directories leftover.\n\n"
+                return 1
+            fi
+        fi
+        DIR="${DIR%\/*}"
+    done
+
 }
 
 #==============================================================================
