@@ -9,7 +9,7 @@ Gitws requires `fzy` to be installed.
 sudo apt install fzy
 
 # Install GitWS
-wget -O - https://gitlab.com/johnmperg/gitws/-/raw/v1.1.0/setup.bash | bash
+wget -O - https://gitlab.com/johnmperg/gitws/-/raw/v1.2.0/setup.bash | bash
 
 # Required to source bashrc (or create a new terminal)
 source ~/.bashrc
