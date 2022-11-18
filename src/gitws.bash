@@ -2,35 +2,119 @@
 #==============================================================================
 # gitws help
 function __gitws_help {
-    echo "Git WS is a workspace manager for git. By simplifying the usage"
-    echo "of the git worktree command."
-    echo ""
-    echo "Not using a subcommand will activate interactive branch selection"
-    echo ""
-    echo "Usage: gitws [option]"
-    echo ""
-    echo "Options:"
-    echo "    help  - This help message"
-    echo "    clone - Clone a new repo and setup for gitws"
-    echo "    add   - Add a new branch for the current gitws"
-    echo "    rm    - Remove a branch from gitws"
-    echo "    list  - List the current available branches"
+    if [ $# -gt 0 ]; then
+        printf "\e[7mError:\e[0m Too many arguments specified.\n\n"
+        __gitws_help
+        return 1
+    fi
+
+    printf "Git WS is a workspace manager for git. By simplifying the usage\n"
+    printf "of the git worktree command.\n"
+    printf "\n"
+    printf "Not using a subcommand will activate interactive branch selection\n"
+    printf "\n"
+    printf "Usage: gitws [option]\n"
+    printf "\n"
+    printf "Options:\n"
+    printf "    help  - This help message\n"
+    printf "    clone - Clone a new repo and setup for gitws\n"
+    printf "    add   - Add a new branch for the current gitws\n"
+    printf "    rm    - Remove a branch from gitws\n"
+    printf "    list  - List the current available branches\n"
 }
 
+function __gitws_root {
+    DIR=$(pwd)
+    while [ ! -z "$DIR" ] && [ ! -f "$DIR/.gitws" ]; do
+        DIR="${DIR%\/*}"
+    done
+    echo $DIR
+}
 #==============================================================================
 # gitws clone <repo>
 #
 #   This function will clone a repo into the directory <repo>/<main-branch>/
-function __gitws_clone {
-    echo "TODO: gitws clone\n"
+#
+function __gitws_clone_help {
+    printf "Usage: gitws clone <repo>\n"
 }
+
+function __gitws_clone {
+    if [ $# -eq 0 ]; then
+        printf "\e[7mError:\e[0m No arguments specified.\n\n"
+        __gitws_clone_help
+        return 1
+    elif [ $# -ge 3 ]; then
+        printf "\e[7mError:\e[0m Too many arguments specified.\n\n"
+        __gitws_clone_help
+        return 1
+    fi
+    
+    # Get args
+    REMOTE=$1
+    PREFIX=$2
+
+    # Get the repo name so we can create a folder with same name
+    REMOTE_NAME_WITH_EXT=${REMOTE##*/}
+    REMOTE_NAME=${REMOTE_NAME_WITH_EXT%.*}
+    GITWS_ROOT_DIR=$(pwd)/${REMOTE_NAME}
+
+    # Verify that we are not inside a gitws already
+    __GITWS_ROOT_DIR=$(__gitws_root)
+    if ! [ -z ${__GITWS_ROOT_DIR} ]; then
+        printf "\e[7mError:\e[0m Already inside a gitws workspace.\n\n"
+        return 1
+    fi
+
+    # Verify if root GITWS_ROOT_DIR is valid
+    if [ -d ${GITWS_ROOT_DIR} ]; then
+        printf "\e[7mError:\e[0m Path already exists: ${GITWS_ROOT_DIR}\n"
+        return 1
+    fi
+
+    # Clone a temporary version of the repo
+    rm -frd /tmp/setup_gitws || true
+    git clone $REMOTE /tmp/setup_gitws
+
+    # Query which is the main branch name of the remote repo
+    # This is required to know which is the Main Git directory
+    ROOT_BRANCH=$(git -C /tmp/setup_gitws remote show origin | grep -oP "(?<=HEAD branch: ).*")
+    GITWS_GIT_DIR=${GITWS_ROOT_DIR}/${ROOT_BRANCH}/${PREFIX}
+
+    # Create the final directory for the final root directory of gitws for this repo
+    mkdir -p ${GITWS_GIT_DIR}
+    cp -R /tmp/setup_gitws/* ${GITWS_GIT_DIR}
+
+    # Root git directory has been prepared
+    # Set up the require metadata file for GITWS in its root dir
+    cat <<EOF > ${GITWS_ROOT_DIR}/.gitws
+GITWS_ROOT_DIR=${GITWS_ROOT_DIR}
+GITWS_GIT_DIR=${GITWS_GIT_DIR}
+EOF
+
+}
+
 
 #==============================================================================
 # gitws add <branch>
 #
 #   This function adds a new branch into the gitws
 #   Note: It will perform a fetch if the branch is not found locally
+function __gitws_add_help {
+    printf "Usage: gitws add <branch>\n"
+}
+
+
 function __gitws_add {
+    if [ $# -eq 0 ]; then
+        printf "\e[7mError:\e[0m No arguments specified.\n\n"
+        __gitws_add_help
+        return 1
+    elif [ $# -ge 2 ]; then
+        printf "\e[7mError:\e[0m Too many arguments specified.\n\n"
+        __gitws_add_help
+        return 1
+    fi
     printf "TODO: gitws add\n"
 }
 
@@ -38,7 +122,21 @@ function __gitws_add {
 # gitws rm <branch>
 #
 #   This function will remove a branch and perform a prune
+function __gitws_rm_help {
+    printf "Usage: gitws rm <branch>\n"
+}
+
+
 function __gitws_rm {
+    if [ $# -eq 0 ]; then
+        printf "\e[7mError:\e[0m No arguments specified.\n\n"
+        __gitws_rm_help
+        return 1
+    elif [ $# -ge 2 ]; then
+        printf "\e[7mError:\e[0m Too many arguments specified.\n\n"
+        __gitws_rm_help
+        return 1
+    fi
     printf "TODO: gitws rm\n"
 }
 
@@ -46,9 +144,19 @@ function __gitws_rm {
 # gitws list
 #
 #   This function will remove a branch and perform a prune
+function __gitws_list_help {
+    printf "Usage: gitws list\n"
+}
+
 function __gitws_list {
+    if [ $# -gt 0 ]; then
+        printf "\e[7mError:\e[0m Too many arguments specified.\n\n"
+        __gitws_list_help
+        return 1
+    fi
     printf "TODO: gitws list\n"
 }
+
 #==============================================================================
 # Common functions
 function __private_gitws_interactive {
@@ -63,11 +171,12 @@ function gitws {
     # Go into interactive mode if no subcommand is chosen
     if [ $# -eq 0 ]; then
         __private_gitws_interactive
-        return
+        return 0
     fi
     
     # Restrict valid subcommands 
     valid_subcommands=(
+        help
         clone
         add
         rm
@@ -77,7 +186,7 @@ function gitws {
     if ! [[ ${valid_subcommands[*]} =~ (^|[[:space:]])"$cmdname"($|[[:space:]]) ]]; then
         printf "\e[7mError:\e[0m Invalid sub command.\n\n"
         __gitws_help
-        return
+        [ $? -ge 1 ] && return 1
     fi
     if type "__gitws_$cmdname" >/dev/null 2>&1; then
         "__gitws_$cmdname" "$@"
