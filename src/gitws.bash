@@ -116,6 +116,47 @@ EOF
     # Set .gitws as read only (this file should be immutable from moment of creation)
     chmod 0444 ${GITWS_ROOT_DIR}/.gitws
 }
+#==================================================================================================
+#   ######   #### ######## ##      ##  ######      ######  ########  ########    ###    ######## ######## 
+#  ##    ##   ##     ##    ##  ##  ## ##    ##    ##    ## ##     ## ##         ## ##      ##    ##       
+#  ##         ##     ##    ##  ##  ## ##          ##       ##     ## ##        ##   ##     ##    ##       
+#  ##   ####  ##     ##    ##  ##  ##  ######     ##       ########  ######   ##     ##    ##    ######   
+#  ##    ##   ##     ##    ##  ##  ##       ##    ##       ##   ##   ##       #########    ##    ##       
+#  ##    ##   ##     ##    ##  ##  ## ##    ##    ##    ## ##    ##  ##       ##     ##    ##    ##       
+#   ######   ####    ##     ###  ###   ######      ######  ##     ## ######## ##     ##    ##    ########
+#==================================================================================================
+# gitws create <branch>
+function __gitws_create_help {
+    printf "Usage: gitws create [branch]\n"
+}
+
+function __gitws_create {
+    # Verify that we are inside a gitws directory
+    __GITWS_ROOT_DIR=$(__gitws_root)
+    if [ -z ${__GITWS_ROOT_DIR} ]; then
+        printf "\e[7mError:\e[0m Not inside a gitws workspace.\n\n"
+        return 1
+    fi
+
+    # Setup variables from gitws workspace
+    source ${__GITWS_ROOT_DIR}/.gitws
+
+    if [ $# -eq 0 ]; then
+        printf "\e[7mError:\e[0m No arguments specified.\n\n"
+        __gitws_create_help
+        return 1
+    elif [ $# -eq 1 ]; then
+        BRANCH_TO_CREATE=$1
+    elif [ $# -ge 2 ]; then
+        printf "\e[7mError:\e[0m Too many arguments specified.\n\n"
+        __gitws_create_help
+        return 1
+    fi
+
+    # Add the new branch into worktree
+    git -C ${GITWS_GIT_DIR} worktree add -B ${BRANCH_TO_CREATE} ${GITWS_ROOT_DIR}/${BRANCH_TO_CREATE}/${GITWS_ROOT_PREFIX} ${GITWS_ROOT_BRANCH}
+    cd ${GITWS_ROOT_DIR}/${BRANCH_TO_CREATE}/${GITWS_ROOT_PREFIX}
+}
 
 
 #==================================================================================================
@@ -346,6 +387,7 @@ function gitws {
     valid_subcommands=(
         help
         clone
+        create
         add
         rm
         list
