@@ -198,13 +198,28 @@ function __gitws_list_help {
     printf "Usage: gitws list\n"
 }
 
-function __gitws_list {
+function __gitws_list_setup {
     if [ $# -gt 0 ]; then
         printf "\e[7mError:\e[0m Too many arguments specified.\n\n"
         __gitws_list_help
         return 1
     fi
-    printf "TODO: gitws list\n"
+
+    # Verify that we are inside a gitws directory
+    __GITWS_ROOT_DIR=$(__gitws_root)
+    if [ -z ${__GITWS_ROOT_DIR} ]; then
+        printf "\e[7mError:\e[0m Not inside a gitws workspace.\n\n"
+        return 1
+    fi
+
+    # Setup variables from gitws workspace
+    source ${__GITWS_ROOT_DIR}/.gitws
+}
+
+function __gitws_list {
+    __gitws_list_setup "$@"
+
+    git -C ${GITWS_GIT_DIR} worktree list
 }
 
 #==============================================================================
