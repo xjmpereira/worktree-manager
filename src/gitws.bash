@@ -131,7 +131,7 @@ function __gitws_add_help {
     printf "Usage: gitws add <branch>\n"
 }
 
-function __gitws_add_setup {
+function __gitws_add {
     if [ $# -eq 0 ]; then
         printf "\e[7mError:\e[0m No arguments specified.\n\n"
         __gitws_add_help
@@ -153,13 +153,10 @@ function __gitws_add_setup {
 
     # Setup variables from gitws workspace
     source ${__GITWS_ROOT_DIR}/.gitws
-}
-
-function __gitws_add {
-    __gitws_add_setup "$@"
 
     # Add the new branch into worktree
     git -C ${GITWS_GIT_DIR} worktree add ${GITWS_ROOT_DIR}/${BRANCH_TO_ADD}/${GITWS_ROOT_PREFIX} ${BRANCH_TO_ADD}
+    cd ${GITWS_ROOT_DIR}/${BRANCH_TO_ADD}/${GITWS_ROOT_PREFIX}
 }
 
 #==================================================================================================
@@ -175,22 +172,18 @@ function __gitws_rm_help {
     printf "Usage: gitws rm <branch>\n"
 }
 
-# This function should
-#
-#
-function __gitws_rm_setup {
-
+function __gitws_rm {
     if [ $# -eq 0 ]; then
-        printf "\e[7mError:\e[0m No arguments specified.\n\n"
-        __gitws_rm_help
-        return 1
+        __gitws_select_branch
+        [ $? -ne 0 ] && return 1
+        BRANCH_TO_REMOVE=$SELECTED_BRANCH
+    elif [ $# -eq 1 ]; then
+        BRANCH_TO_REMOVE=$1
     elif [ $# -ge 2 ]; then
         printf "\e[7mError:\e[0m Too many arguments specified.\n\n"
         __gitws_rm_help
         return 1
     fi
-
-    BRANCH_TO_REMOVE=$1
 
     # Verify that we are inside a gitws directory
     __GITWS_ROOT_DIR=$(__gitws_root)
@@ -201,10 +194,28 @@ function __gitws_rm_setup {
 
     # Setup variables from gitws workspace
     source ${__GITWS_ROOT_DIR}/.gitws
-}
 
-function __gitws_rm {
-    __gitws_rm_setup "$@"
+    printf "Selected for removal: ${BRANCH_TO_REMOVE}\n"
+    if [ ! -z "$(echo "$(pwd)" | grep "^${GITWS_ROOT_DIR}/${BRANCH_TO_REMOVE}" )" ]; then
+        printf "Branch selected is in use.!\n"
+    fi
+
+    if [ "${GITWS_ROOT_BRANCH}" == "${BRANCH_TO_REMOVE}" ]; then
+        printf "\e[7mError:\e[0m Removal of root branch not allowed\n\n"
+        return 1
+    fi
+
+    read -p " > Confirm removal (y/n)? " yn
+    case $yn in 
+        [yY] ) ;;
+        [nN] ) printf "Operation canceled\n"; return 0;;
+        * ) printf "Invalid choice\n"; return 1;;
+    esac
+
+    if [ ! -z "$(echo "$(pwd)" | grep "^${GITWS_ROOT_DIR}/${BRANCH_TO_REMOVE}" )" ]; then
+        # Change to git worktree root
+        cd ${GITWS_GIT_DIR}
+    fi
 
     # Remove the branch from worktree
     printf "Removing branch from worktree\n"
@@ -217,7 +228,7 @@ function __gitws_rm {
         if [ ! -z "$(find ${DIR} -type d -empty)" ]; then
             # Sanity check the DIR were are going to remove is inside the GITWS_ROOT_DIR
             if [ ! -z "$(echo "${DIR}" | grep "^${GITWS_ROOT_DIR}" )" ]; then
-                rm -d ${DIR}
+                rm -fd ${DIR}
             else
                 printf "\e[7mWarning:\e[0m There may be some empty directories leftover.\n\n"
                 return 1
@@ -243,7 +254,7 @@ function __gitws_list_help {
     printf "Usage: gitws list\n"
 }
 
-function __gitws_list_setup {
+function __gitws_list {
     if [ $# -gt 0 ]; then
         printf "\e[7mError:\e[0m Too many arguments specified.\n\n"
         __gitws_list_help
@@ -259,10 +270,6 @@ function __gitws_list_setup {
 
     # Setup variables from gitws workspace
     source ${__GITWS_ROOT_DIR}/.gitws
-}
-
-function __gitws_list {
-    __gitws_list_setup "$@"
 
     git -C ${GITWS_GIT_DIR} worktree list
 }
@@ -277,8 +284,36 @@ function __gitws_list {
 #   ######   ####    ##     ###  ###   ######     ##     ## ######## ##    ##  #######
 #==================================================================================================
 # Common functions
+function __gitws_select_branch {
+    # Get branch lists available to gitws
+    BRANCH_LIST=$(__gitws_list)
+
+    if [ ! -z "$(command -v fzy)" ]; then
+        # FZY command is supported
+        SELECTED_LINE=$(echo "$BRANCH_LIST" | fzy)
+    else
+        printf "\e[7mError:\e[0m Please install FZY. [sudo apt install fzy]\n\n"
+        return 1
+    fi
+    SELECTED_BRANCH=$(echo "$SELECTED_LINE" | awk '{gsub(/\[|\]/, "", $3); print $3}')
+    SELECTED_DIR=$(echo "$SELECTED_LINE" | awk '{ print $1 }')
+}
+
 function __gitws_menu {
-    printf "TODO: menu mode\n"
+    # Verify that we are inside a gitws directory
+    __GITWS_ROOT_DIR=$(__gitws_root)
+    if [ -z ${__GITWS_ROOT_DIR} ]; then
+        printf "\e[7mError:\e[0m Not inside a gitws workspace.\n\n"
+        return 1
+    fi
+
+    # Setup variables from gitws workspace
+    source ${__GITWS_ROOT_DIR}/.gitws
+
+    __gitws_select_branch
+    [ $? -ne 0 ] && return 1
+
+    cd ${GITWS_ROOT_DIR}/${SELECTED_BRANCH}/${GITWS_ROOT_PREFIX}
 }
 
 
