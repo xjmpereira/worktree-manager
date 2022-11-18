@@ -1,6 +1,6 @@
 #==================================================================================================
 function __gitws_version {
-    printf "Git WS version: v1.2.0\n"
+    printf "Git WS version: v1.2.1\n"
 }
 #==================================================================================================
 #   ######   #### ######## ##      ##  ######     ##     ## ######## ##       ########
@@ -27,11 +27,12 @@ function __gitws_help {
     printf "Usage: gitws [option]\n"
     printf "\n"
     printf "Options:\n"
-    printf "    help  - This help message\n"
-    printf "    clone - Clone a new repo and setup for gitws\n"
-    printf "    add   - Add a new branch for the current gitws\n"
-    printf "    rm    - Remove a branch from gitws\n"
-    printf "    list  - List the current available branches\n"
+    printf "    help   - This help message\n"
+    printf "    clone  - Clone a new repo and setup for gitws\n"
+    printf "    create - Create a new branch to the current gitws\n"
+    printf "    add    - Add a branch from remote to the current gitws\n"
+    printf "    rm     - Remove a branch from gitws\n"
+    printf "    list   - List the current available branches\n"
 }
 
 function __gitws_root {

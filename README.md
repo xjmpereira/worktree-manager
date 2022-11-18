@@ -9,7 +9,7 @@ Gitws requires `fzy` to be installed.
 sudo apt install fzy
 
 # Install GitWS
-wget -O - https://gitlab.com/johnmperg/gitws/-/raw/v1.2.0/setup.bash | bash
+wget -O - https://gitlab.com/johnmperg/gitws/-/raw/v1.2.1/setup.bash | bash
 
 # Required to source bashrc (or create a new terminal)
 source ~/.bashrc
@@ -29,6 +29,9 @@ gitws rm [branch]
 
 # List branches available in gitws
 gitws list
+
+# Create new branch locally using gitws
+gitws create <branch>
 
 # Switch between branches
 gitws
