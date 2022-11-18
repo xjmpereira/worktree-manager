@@ -30,7 +30,15 @@ function __gitws_root {
     done
     echo $DIR
 }
-#==============================================================================
+#==================================================================================================
+#   ######   #### ######## ##      ##  ######      ######  ##        #######  ##    ## ########
+#  ##    ##   ##     ##    ##  ##  ## ##    ##    ##    ## ##       ##     ## ###   ## ##
+#  ##         ##     ##    ##  ##  ## ##          ##       ##       ##     ## ####  ## ##
+#  ##   ####  ##     ##    ##  ##  ##  ######     ##       ##       ##     ## ## ## ## ######
+#  ##    ##   ##     ##    ##  ##  ##       ##    ##       ##       ##     ## ##  #### ##
+#  ##    ##   ##     ##    ##  ##  ## ##    ##    ##    ## ##       ##     ## ##   ### ##
+#   ######   ####    ##     ###  ###   ######      ######  ########  #######  ##    ## ########
+#==================================================================================================
 # gitws clone <repo>
 #
 #   This function will clone a repo into the directory <repo>/<main-branch>/
@@ -49,7 +57,7 @@ function __gitws_clone {
         __gitws_clone_help
         return 1
     fi
-    
+
     # Get args
     GITWS_REMOTE=$1
     GITWS_ROOT_PREFIX=$2
@@ -99,17 +107,24 @@ EOF
 }
 
 
-#==============================================================================
+#==================================================================================================
+#   ######   #### ######## ##      ##  ######        ###    ########  ########
+#  ##    ##   ##     ##    ##  ##  ## ##    ##      ## ##   ##     ## ##     ##
+#  ##         ##     ##    ##  ##  ## ##           ##   ##  ##     ## ##     ##
+#  ##   ####  ##     ##    ##  ##  ##  ######     ##     ## ##     ## ##     ##
+#  ##    ##   ##     ##    ##  ##  ##       ##    ######### ##     ## ##     ##
+#  ##    ##   ##     ##    ##  ##  ## ##    ##    ##     ## ##     ## ##     ##
+#   ######   ####    ##     ###  ###   ######     ##     ## ########  ########
+#==================================================================================================
 # gitws add <branch>
 #
-#   This function adds a new branch into the gitws
-#   Note: It will perform a fetch if the branch is not found locally
+#   This function will add a branch into the directory <GITWS_ROOT>/<branch>/<GITWS_PREFIX>
+#
 function __gitws_add_help {
     printf "Usage: gitws add <branch>\n"
 }
 
-
-function __gitws_add {
+function __gitws_add_setup {
     if [ $# -eq 0 ]; then
         printf "\e[7mError:\e[0m No arguments specified.\n\n"
         __gitws_add_help
@@ -131,21 +146,33 @@ function __gitws_add {
 
     # Setup variables from gitws workspace
     source ${__GITWS_ROOT_DIR}/.gitws
+}
+
+function __gitws_add {
+    __gitws_add_setup "$@"
 
     # Add the new branch into worktree
     git -C ${GITWS_GIT_DIR} worktree add ${GITWS_ROOT_DIR}/${BRANCH_TO_ADD}/${GITWS_ROOT_PREFIX} ${BRANCH_TO_ADD}
 }
 
-#==============================================================================
-# gitws rm <branch>
-#
-#   This function will remove a branch and perform a prune
+#==================================================================================================
+#   ######   #### ######## ##      ##  ######     ########  ##     ##
+#  ##    ##   ##     ##    ##  ##  ## ##    ##    ##     ## ###   ###
+#  ##         ##     ##    ##  ##  ## ##          ##     ## #### ####
+#  ##   ####  ##     ##    ##  ##  ##  ######     ########  ## ### ##
+#  ##    ##   ##     ##    ##  ##  ##       ##    ##   ##   ##     ##
+#  ##    ##   ##     ##    ##  ##  ## ##    ##    ##    ##  ##     ##
+#   ######   ####    ##     ###  ###   ######     ##     ## ##     ##
+#==================================================================================================
 function __gitws_rm_help {
     printf "Usage: gitws rm <branch>\n"
 }
 
+# This function should
+#
+#
+function __gitws_rm_setup {
 
-function __gitws_rm {
     if [ $# -eq 0 ]; then
         printf "\e[7mError:\e[0m No arguments specified.\n\n"
         __gitws_rm_help
@@ -167,6 +194,10 @@ function __gitws_rm {
 
     # Setup variables from gitws workspace
     source ${__GITWS_ROOT_DIR}/.gitws
+}
+
+function __gitws_rm {
+    __gitws_rm_setup "$@"
 
     # Remove the branch from worktree
     printf "Removing branch from worktree\n"
@@ -181,16 +212,23 @@ function __gitws_rm {
             if [ ! -z "$(echo "${DIR}" | grep "^${GITWS_ROOT_DIR}" )" ]; then
                 rm -d ${DIR}
             else
-                printf "\e[7mError:\e[0m Something went terribly wrong. There may be some empty directories leftover.\n\n"
+                printf "\e[7mWarning:\e[0m There may be some empty directories leftover.\n\n"
                 return 1
             fi
         fi
         DIR="${DIR%\/*}"
     done
-
 }
 
-#==============================================================================
+#==================================================================================================
+#   ######   #### ######## ##      ##  ######     ##       ####  ######  ########
+#  ##    ##   ##     ##    ##  ##  ## ##    ##    ##        ##  ##    ##    ##
+#  ##         ##     ##    ##  ##  ## ##          ##        ##  ##          ##
+#  ##   ####  ##     ##    ##  ##  ##  ######     ##        ##   ######     ##
+#  ##    ##   ##     ##    ##  ##  ##       ##    ##        ##        ##    ##
+#  ##    ##   ##     ##    ##  ##  ## ##    ##    ##        ##  ##    ##    ##
+#   ######   ####    ##     ###  ###   ######     ######## ####  ######     ##
+#==================================================================================================
 # gitws list
 #
 #   This function will remove a branch and perform a prune
@@ -238,8 +276,8 @@ function gitws {
         __private_gitws_interactive
         return 0
     fi
-    
-    # Restrict valid subcommands 
+
+    # Restrict valid subcommands
     valid_subcommands=(
         help
         clone
