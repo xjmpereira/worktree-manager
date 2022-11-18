@@ -6,7 +6,7 @@ fi
 
 wget -O ~/.config/gitws/gitws.bash https://gitlab.com/johnmperg/gitws/-/raw/v0.0.3/src/gitws.bash
 
-if [ ! -z "$(cat ~/.bashrc | grep 'source ~/.config/gitws/gitws.bash')" ]; then
+if [ -z "$(cat ~/.bashrc | grep 'source ~/.config/gitws/gitws.bash')" ]; then
     echo 'source ~/.config/gitws/gitws.bash' >> ~/.bashrc
 fi
 source ~/.config/gitws/gitws.bash
