@@ -51,11 +51,11 @@ function __gitws_clone {
     fi
     
     # Get args
-    REMOTE=$1
-    PREFIX=$2
+    GITWS_REMOTE=$1
+    GITWS_ROOT_PREFIX=$2
 
     # Get the repo name so we can create a folder with same name
-    REMOTE_NAME_WITH_EXT=${REMOTE##*/}
+    REMOTE_NAME_WITH_EXT=${GITWS_REMOTE##*/}
     REMOTE_NAME=${REMOTE_NAME_WITH_EXT%.*}
     GITWS_ROOT_DIR=$(pwd)/${REMOTE_NAME}
 
@@ -74,24 +74,28 @@ function __gitws_clone {
 
     # Clone a temporary version of the repo
     rm -frd /tmp/setup_gitws || true
-    git clone $REMOTE /tmp/setup_gitws
+    git clone ${GITWS_REMOTE} /tmp/setup_gitws
 
-    # Query which is the main branch name of the remote repo
-    # This is required to know which is the Main Git directory
-    ROOT_BRANCH=$(git -C /tmp/setup_gitws remote show origin | grep -oP "(?<=HEAD branch: ).*")
-    GITWS_GIT_DIR=${GITWS_ROOT_DIR}/${ROOT_BRANCH}/${PREFIX}
+    # Query which is the current branch (which should be the default one)
+    # This is required to know which is the Main Git worktree directory
+    GITWS_ROOT_BRANCH=$(git -C /tmp/setup_gitws branch --show-current)
+    GITWS_GIT_DIR=${GITWS_ROOT_DIR}/${ROOT_BRANCH}/${GITWS_ROOT_PREFIX}
 
     # Create the final directory for the final root directory of gitws for this repo
     mkdir -p ${GITWS_GIT_DIR}
-    cp -R /tmp/setup_gitws/* ${GITWS_GIT_DIR}
+    mv /tmp/setup_gitws/{,.[^.]}* ${GITWS_GIT_DIR}
 
     # Root git directory has been prepared
     # Set up the require metadata file for GITWS in its root dir
     cat <<EOF > ${GITWS_ROOT_DIR}/.gitws
-GITWS_ROOT_DIR=${GITWS_ROOT_DIR}
+GITWS_REMOTE=${REMOTE}
 GITWS_GIT_DIR=${GITWS_GIT_DIR}
+GITWS_ROOT_DIR=${GITWS_ROOT_DIR}
+GITWS_ROOT_BRANCH=${GITWS_ROOT_BRANCH}
+GITWS_ROOT_PREFIX=${GITWS_ROOT_PREFIX}
 EOF
-
+    # Set .gitws as read only (this file should be immutable from moment of creation)
+    chmod 0444 ${GITWS_ROOT_DIR}/.gitws
 }
 
 
