@@ -1,6 +1,6 @@
 #==================================================================================================
 function __gitws_version {
-    printf "Git WS version: v1.2.1\n"
+    printf "Git WS version: v1.2.2\n"
 }
 #==================================================================================================
 #   ######   #### ######## ##      ##  ######     ##     ## ######## ##       ########
@@ -270,6 +270,8 @@ function __gitws_rm {
     # Remove the branch from worktree
     printf "Removing branch from worktree\n"
     git -C ${GITWS_GIT_DIR} worktree remove ${GITWS_ROOT_DIR}/${BRANCH_TO_REMOVE}/${GITWS_ROOT_PREFIX}
+    git -C ${GITWS_GIT_DIR} worktree unlock ${GITWS_ROOT_DIR}/${BRANCH_TO_REMOVE}/${GITWS_ROOT_PREFIX}
+    git -C ${GITWS_GIT_DIR} worktree prune
 
     # Clean the empty directories
     printf "Cleaning up directories on workspace\n"
