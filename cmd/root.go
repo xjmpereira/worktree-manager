@@ -6,6 +6,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var gitwsDir string
+
+func init() {
+	rootCmd.PersistentFlags().StringVarP(&gitwsDir, "currentdir", "C", "", "Use this as current directory")
+}
+
 var rootCmd = &cobra.Command{
 	Use:   "git-ws",
 	Short: "A program to manage git worktrees",
@@ -17,8 +23,4 @@ func Execute() {
 	if err != nil {
 		os.Exit(1)
 	}
-}
-
-func init() {
-	rootCmd.AddCommand(versionCmd)
 }

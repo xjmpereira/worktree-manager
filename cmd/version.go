@@ -8,6 +8,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+func init() {
+	rootCmd.AddCommand(versionCmd)
+}
+
 // GitWSVersion is the version of the cli to be overwritten by goreleaser in the CI run with the version of the release in github
 var GitWSVersion string
 

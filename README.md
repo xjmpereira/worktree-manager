@@ -37,19 +37,19 @@ gitws create <branch>
 gitws
 ```
 
-## Notes
+## Usage (dev)
 
 ```bash
-REPOSITORY_URL=https://github.com/minio/minio.git
-REPOSITORY_NAME=github.com/minio/minio
-REPOSITORY_BRANCH=master
-REPOSITORY_ROOT=${REPOSITORY_NAME}/${REPOSITORY_BRANCH}
-mkdir -p ${REPOSITORY_ROOT}
-git clone ${REPOSITORY_URL} ${REPOSITORY_ROOT} --branch ${REPOSITORY_BRANCH}
-```
+# Clone a repository
+go run main.go clone https://github.com/minio/minio.git
 
-### Create Worktree
+# Show config
+go run main.go -C ~/minio/minio config
 
-```bash
-git worktree add -B testing-branch ~/${REPOSITORY_NAME}/testing-branch
+# List all worktrees currently checkout
+go run main.go -C ~/minio/minio list
+
+# Create new branch
+go run main.go -C ~/minio/minio create testing-branch
+go run main.go -C ~/minio/minio list
 ```
