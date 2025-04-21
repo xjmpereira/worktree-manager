@@ -36,3 +36,20 @@ gitws create <branch>
 # Switch between branches
 gitws
 ```
+
+## Notes
+
+```bash
+REPOSITORY_URL=https://github.com/minio/minio.git
+REPOSITORY_NAME=github.com/minio/minio
+REPOSITORY_BRANCH=master
+REPOSITORY_ROOT=${REPOSITORY_NAME}/${REPOSITORY_BRANCH}
+mkdir -p ${REPOSITORY_ROOT}
+git clone ${REPOSITORY_URL} ${REPOSITORY_ROOT} --branch ${REPOSITORY_BRANCH}
+```
+
+### Create Worktree
+
+```bash
+git worktree add -B testing-branch ~/${REPOSITORY_NAME}/testing-branch
+```
