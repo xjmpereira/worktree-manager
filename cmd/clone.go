@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -9,7 +10,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/spf13/cobra"
+	cli "github.com/urfave/cli/v3"
 )
 
 func matchedGroups(regEx, url string) (paramsMap map[string]string) {
@@ -67,36 +68,40 @@ func defaultBranch(remoteUrl string) string {
 	return rootBranch
 }
 
-func NewCloneCommand() *cobra.Command {
-	var cloneCmd = &cobra.Command{
-		Use:   "clone <repository>",
-		Short: "Clone a repository and prepare it with GitWS structure.",
-		Run: func(cmd *cobra.Command, args []string) {
-			remoteUrl := strings.Trim(args[0], " \t")
-			rootDomain, rootOwner, rootRepo := remoteRepository(remoteUrl)
-			rootBranch := defaultBranch(remoteUrl)
-
-			// Clone the repository
-			userHome, err := os.UserHomeDir()
-			if err != nil {
-				log.Fatal( err )
-			}
-			rootDir := filepath.Join(userHome, rootOwner, rootRepo)
-			gitDir := filepath.Join(rootDir, rootBranch)
-			cloneRepository(remoteUrl, gitDir, rootBranch)
-
-			// Finally save the configuration file
-			config := GitwsConfig{
-				RemoteUrl: remoteUrl,
-				RootDomain: rootDomain,
-				RootOwner: rootOwner,
-				RootRepo: rootRepo,
-				RootBranch: rootBranch,
-				RootDir: rootDir,
-				GitDir: gitDir,
-			}
-			writeGitwsConfig(config.RootDir, config)
-		},
+func CloneCmd() *cli.Command{
+	cmd := &cli.Command{
+		Name:  "clone",
+		Usage: "Clone a repository and prepare it with GitWS structure.",
+		Action: CloneFn,
+		ArgsUsage: "<repository>",
 	}
-	return cloneCmd
+	return cmd
+}
+
+func CloneFn(ctx context.Context, cmd *cli.Command) error {
+	if foundConfig {
+		log.Fatal("Already inside a GitWS workspace")
+	}
+
+	remoteUrl := strings.Trim(cmd.Args().First(), " \t")
+	rootDomain, rootOwner, rootRepo := remoteRepository(remoteUrl)
+	rootBranch := defaultBranch(remoteUrl)
+
+	// Clone the repository
+	rootDir := filepath.Join(currentDir, rootRepo)
+	gitDir := filepath.Join(rootDir, rootBranch)
+	cloneRepository(remoteUrl, gitDir, rootBranch)
+
+	// Finally save the configuration file
+	gitwsConfig = GitwsConfig{
+		RemoteUrl: remoteUrl,
+		RootDomain: rootDomain,
+		RootOwner: rootOwner,
+		RootRepo: rootRepo,
+		RootBranch: rootBranch,
+		RootDir: rootDir,
+		GitDir: gitDir,
+	}
+	writeGitwsConfig(gitwsConfig.RootDir, gitwsConfig)
+	return nil
 }

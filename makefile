@@ -1,4 +1,4 @@
-BINARY_NAME=ws
+BINARY_NAME=ws-cmd
  
 build:
 	go build -o ${BINARY_NAME} main.go

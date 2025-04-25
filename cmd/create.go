@@ -1,31 +1,38 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os/exec"
 	"path/filepath"
 	"strings"
 
-	"github.com/spf13/cobra"
+	cli "github.com/urfave/cli/v3"
 )
 
-func NewCreateCommand() *cobra.Command {
-	var createCmd = &cobra.Command{
-		Use:   "create",
-		Short: "Create a new worktree from a branch name",
-		Run: func(cmd *cobra.Command, args []string) {
-			branchName := strings.Trim(args[0], " \t")
-			config := readGitwsConfig(gitwsDir)
-			worktreeDir := filepath.Join(config.RootDir, branchName)
-
-			ps := exec.Command("git", "-C", config.GitDir, "worktree", "add", "-B", branchName, worktreeDir, config.RootBranch)
-			out, err := ps.CombinedOutput()
-			if err != nil {
-				log.Fatal(string(out))
-			}
-			fmt.Printf("%s\n", string(out))
-		},
+func CreateCmd() *cli.Command{
+	cmd := &cli.Command{
+		Name:  "create",
+		Usage: "Create a new worktree from a branch name",
+		Action: CreateFn,
 	}
-	return createCmd
+	return cmd
 }
+
+func CreateFn(ctx context.Context, cmd *cli.Command) error {
+	if !foundConfig {
+		log.Fatal("Gitws config file not found")
+	}
+	branchName := strings.Trim(cmd.Args().First(), " \t")
+	worktreeDir := filepath.Join(gitwsConfig.RootDir, branchName)
+
+	ps := exec.Command("git", "-C", gitwsConfig.GitDir, "worktree", "add", "-B", branchName, worktreeDir, gitwsConfig.RootBranch)
+	out, err := ps.CombinedOutput()
+	if err != nil {
+		log.Fatal(string(out))
+	}
+	fmt.Printf("%s\n", string(out))
+	return nil
+}
+
