@@ -8,10 +8,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func init() {
-	rootCmd.AddCommand(versionCmd)
-}
-
 // GitWSVersion is the version of the cli to be overwritten by goreleaser in the CI run with the version of the release in github
 var GitWSVersion string
 
@@ -50,20 +46,22 @@ func getGitWSVersion() string {
 	return noVersionAvailable
 }
 
-// versionCmd represents the version command
-var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Display application version information.",
-	Long: `
-The version command provides information about the application's version.
+func NewVersionCommand() *cobra.Command {
+	var versionCmd = &cobra.Command{
+		Use:   "version",
+		Short: "Display application version information.",
+		Long: `
+	The version command provides information about the application's version.
 
-Git WS requires version information to be embedded at compile time.
-For detailed version information, Git WS needs to be built as specified in the README installation instructions.
-If Git WS is built within a version control repository and other version info isn't available,
-the revision hash will be used instead.
-	`,
-	Run: func(cmd *cobra.Command, args []string) {
-		version := getGitWSVersion()
-		fmt.Printf("GitWS CLI version: %v\n", version)
-	},
+	Git WS requires version information to be embedded at compile time.
+	For detailed version information, Git WS needs to be built as specified in the README installation instructions.
+	If Git WS is built within a version control repository and other version info isn't available,
+	the revision hash will be used instead.
+		`,
+		Run: func(cmd *cobra.Command, args []string) {
+			version := getGitWSVersion()
+			fmt.Printf("GitWS CLI version: %v\n", version)
+		},
+	}
+	return versionCmd
 }

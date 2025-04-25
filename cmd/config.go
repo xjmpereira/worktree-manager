@@ -2,17 +2,15 @@ package cmd
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 
 	"github.com/spf13/cobra"
 )
-
-func init() {
-	rootCmd.AddCommand(configCmd)
-}
 
 type GitwsConfig struct {
     RemoteUrl  string `json:"remoteUrl"`
@@ -22,6 +20,27 @@ type GitwsConfig struct {
 	RootBranch string `json:"rootBranch"`
 	RootDir    string `json:"rootDir"`
 	GitDir     string `json:"gitDir"`	
+}
+
+func updateGitwsRoot() {
+	var path string
+	if len(gitwsDir) == 0 {
+		path, err := os.Getwd()
+		if err != nil {
+			log.Println(err)
+		}
+		for len(path) > 1 {
+			path, _ = filepath.Split(path)
+			path = filepath.Clean(path)
+			fmt.Printf("Checking %s\n", path)
+			configPath := filepath.Join(path, ".gitws")
+			if _, err := os.Stat(configPath); ! errors.Is(err, os.ErrNotExist) {
+				fmt.Printf("Found %s\n", configPath)
+				break
+			}
+		}
+	}
+	gitwsDir = path
 }
 
 func readGitwsConfig(gitws_root_dir string) GitwsConfig {
@@ -54,11 +73,14 @@ func writeGitwsConfig(gitws_root_dir string, config GitwsConfig) {
 	}
 }
 
-var configCmd = &cobra.Command{
-	Use:   "config",
-	Short: "Show config of the current gitws directory",
-	Run: func(cmd *cobra.Command, args []string) {
-		config := readGitwsConfig(gitwsDir)
-		fmt.Printf("%+v\n", config)
-	},
+func NewConfigCommand() *cobra.Command {
+	var configCmd = &cobra.Command{
+		Use:   "config",
+		Short: "Show config of the current gitws directory",
+		Run: func(cmd *cobra.Command, args []string) {
+			config := readGitwsConfig(gitwsDir)
+			fmt.Printf("%+v\n", config)
+		},
+	}
+	return configCmd
 }

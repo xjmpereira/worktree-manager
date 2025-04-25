@@ -12,10 +12,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func init() {
-	rootCmd.AddCommand(cloneCmd)
-}
-
 func matchedGroups(regEx, url string) (paramsMap map[string]string) {
     var compRegEx = regexp.MustCompile(regEx)
     match := compRegEx.FindStringSubmatch(url)
@@ -71,33 +67,36 @@ func defaultBranch(remoteUrl string) string {
 	return rootBranch
 }
 
-var cloneCmd = &cobra.Command{
-	Use:   "clone <repository>",
-	Short: "Clone a repository and prepare it with GitWS structure.",
-	Run: func(cmd *cobra.Command, args []string) {
-		remoteUrl := strings.Trim(args[0], " \t")
-		rootDomain, rootOwner, rootRepo := remoteRepository(remoteUrl)
-		rootBranch := defaultBranch(remoteUrl)
+func NewCloneCommand() *cobra.Command {
+	var cloneCmd = &cobra.Command{
+		Use:   "clone <repository>",
+		Short: "Clone a repository and prepare it with GitWS structure.",
+		Run: func(cmd *cobra.Command, args []string) {
+			remoteUrl := strings.Trim(args[0], " \t")
+			rootDomain, rootOwner, rootRepo := remoteRepository(remoteUrl)
+			rootBranch := defaultBranch(remoteUrl)
 
-		// Clone the repository
-		userHome, err := os.UserHomeDir()
-		if err != nil {
-			log.Fatal( err )
-		}
-		rootDir := filepath.Join(userHome, rootOwner, rootRepo)
-		gitDir := filepath.Join(rootDir, rootBranch)
-		cloneRepository(remoteUrl, gitDir, rootBranch)
+			// Clone the repository
+			userHome, err := os.UserHomeDir()
+			if err != nil {
+				log.Fatal( err )
+			}
+			rootDir := filepath.Join(userHome, rootOwner, rootRepo)
+			gitDir := filepath.Join(rootDir, rootBranch)
+			cloneRepository(remoteUrl, gitDir, rootBranch)
 
-		// Finally save the configuration file
-		config := GitwsConfig{
-			RemoteUrl: remoteUrl,
-			RootDomain: rootDomain,
-			RootOwner: rootOwner,
-			RootRepo: rootRepo,
-			RootBranch: rootBranch,
-			RootDir: rootDir,
-			GitDir: gitDir,
-		}
-		writeGitwsConfig(config.RootDir, config)
-	},
+			// Finally save the configuration file
+			config := GitwsConfig{
+				RemoteUrl: remoteUrl,
+				RootDomain: rootDomain,
+				RootOwner: rootOwner,
+				RootRepo: rootRepo,
+				RootBranch: rootBranch,
+				RootDir: rootDir,
+				GitDir: gitDir,
+			}
+			writeGitwsConfig(config.RootDir, config)
+		},
+	}
+	return cloneCmd
 }
