@@ -36,3 +36,20 @@ gitws create <branch>
 # Switch between branches
 gitws
 ```
+
+## Usage (dev)
+
+```bash
+# Clone a repository
+go run main.go clone https://github.com/minio/minio.git
+
+# Show config
+go run main.go -C ~/minio/minio config
+
+# List all worktrees currently checkout
+go run main.go -C ~/minio/minio list
+
+# Create new branch
+go run main.go -C ~/minio/minio create testing-branch
+go run main.go -C ~/minio/minio list
+```
