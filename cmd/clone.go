@@ -7,24 +7,10 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
 	"strings"
 
 	cli "github.com/urfave/cli/v3"
 )
-
-func matchedGroups(regEx, url string) (paramsMap map[string]string) {
-    var compRegEx = regexp.MustCompile(regEx)
-    match := compRegEx.FindStringSubmatch(url)
-
-    paramsMap = make(map[string]string)
-    for i, name := range compRegEx.SubexpNames() {
-        if i > 0 && i <= len(match) {
-            paramsMap[name] = match[i]
-        }
-    }
-    return paramsMap
-}
 
 func cloneRepository(repository string, directory string, branch string) {
 	if _, err := os.Stat(directory); err != nil {
@@ -88,8 +74,8 @@ func CloneFn(ctx context.Context, cmd *cli.Command) error {
 	rootBranch := defaultBranch(remoteUrl)
 
 	// Clone the repository
-	rootDir := filepath.Join(currentDir, rootRepo)
-	gitDir := filepath.Join(rootDir, rootBranch)
+	rootDir := filepath.Clean(filepath.Join(currentDir, rootRepo))
+	gitDir := filepath.Clean(filepath.Join(rootDir, rootBranch))
 	cloneRepository(remoteUrl, gitDir, rootBranch)
 
 	// Finally save the configuration file

@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"path/filepath"
 
@@ -23,23 +22,10 @@ type GitwsConfig struct {
 	GitDir     string `json:"gitDir"`
 }
 
-func cwdOr(path string) string {
-	var out string = path
-	if len(out) == 0 {
-		currentPath, err := os.Getwd()
-		if err != nil {
-			log.Println(err)
-		}
-		out = currentPath
-	}
-	return out
-}
-
 func searchGitwsRoot(dir string) (string, error) {
 	path := filepath.Join(cwdOr(dir), ".gitws")
 	for len(path) > 1 {
-		path, _ = filepath.Split(path)
-		path = filepath.Clean(path)
+		path = filepath.Dir(path)
 		configPath := filepath.Join(path, ".gitws")
 		if _, err := os.Stat(configPath); ! errors.Is(err, os.ErrNotExist) {
 			return path, nil

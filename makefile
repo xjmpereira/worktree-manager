@@ -1,12 +1,20 @@
-BINARY_NAME=ws-cmd
- 
+GITLAB_NAME=ws
+GITLAB_PROJECT=41089011
+GITWS_BINARY=ws-cmd
+GITWS_VERSION=master
+
 build:
-	go build -o ${BINARY_NAME} main.go
+	go build -o ${GITWS_BINARY} main.go
  
 run:
-	go build -o ${BINARY_NAME} main.go
-	./${BINARY_NAME}
+	go build -o ${GITWS_BINARY} main.go
+	./${GITWS_BINARY}
  
 clean:
 	go clean
-	rm ${BINARY_NAME}
+	rm ${GITWS_BINARY}
+
+release: build
+	@curl --location --header "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
+		--upload-file ${GITWS_BINARY} \
+		"https://gitlab.com/api/v4/projects/${GITLAB_PROJECT}/packages/generic/${GITLAB_NAME}/${GITWS_VERSION}/${GITWS_BINARY}"

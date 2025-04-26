@@ -1,19 +1,17 @@
 package cmd
 
 import (
-	"cmp"
 	"context"
 	"fmt"
 	"log"
 	"os/exec"
-	"slices"
 	"strings"
 
 	cli "github.com/urfave/cli/v3"
 )
 
 type GitwsWorktree struct {
-	Sha   string
+	Sha    string
 	Path   string
 	Branch string
 }
@@ -39,13 +37,6 @@ func ListFn(ctx context.Context, cmd *cli.Command) error {
 		fmt.Printf(" % *s : %s\n", maxWidth, worktree.Branch, worktree.Path)
 	}
 	return nil
-}
-
-func MaxWidth(wsList []GitwsWorktree) int {
-	maxWidthWorktree := slices.MaxFunc(wsList, func(a GitwsWorktree, b GitwsWorktree) int {
-		return cmp.Compare(len(a.Branch), len(b.Branch))
-	})
-	return len(maxWidthWorktree.Branch)
 }
 
 func GetWsList() []GitwsWorktree {
