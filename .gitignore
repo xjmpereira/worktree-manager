@@ -1,0 +1,10 @@
+/build/
+.DS_Store
+*~
+.*.swp
+/tags
+CMakeSettings.json
+.vs
+.idea
+.zig-cache/
+zig-out/

@@ -1,0 +1,9 @@
+{
+    "name": "my-project-devcontainer",
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+        "ghcr.io/devcontainers/features/git:1": {},
+        "ghcr.io/devcontainers-extra/features/cmake:1": {},
+        "ghcr.io/devcontainers-extra/features/zig:1": {}
+    }
+}
