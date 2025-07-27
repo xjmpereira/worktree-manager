@@ -1,0 +1,33 @@
+name: devenv-worktree-manager-${USER}
+services:
+  instance:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        BASEIMAGE: ubuntu:jammy
+    tty: true
+    hostname: worktree-manager
+    command: sleep infinity
+    init: true
+    ipc: host
+    privileged: true
+    environment:
+      XTERM: xterm-256color
+      DISPLAY: ${DISPLAY}
+    volumes:
+      # Give access to docker
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Graphical interfaces setup
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ${HOME}/.Xauthority:${HOME}/.Xauthority
+      # Mount persistent caches
+      - devenv-user-cache:${HOME}/.cache
+
+networks:
+  default:
+    name: devenv-worktree-manager-${USER}-network
+
+volumes:
+  devenv-user-cache:
+    name: devenv-worktree-manager-${USER}-cache

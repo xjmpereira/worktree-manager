@@ -1,0 +1,63 @@
+repos:
+- repo: meta
+  hooks:
+  - name: Meta | Check hooks apply to repository
+    id: check-hooks-apply
+  - name: Meta | Check for useless excludes
+    id: check-useless-excludes
+#
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v5.0.0
+  hooks:
+  - name: Misc | Forbid usage of submodules
+    id: forbid-submodules
+  #
+  - name: Misc | Check for added large files
+    id: check-added-large-files
+  #
+  - name: Misc | Check for shebangs on executables
+    id: check-executables-have-shebangs
+  #
+  - name: Misc | Check mixed line endings
+    id: mixed-line-ending
+  #
+  - name: Misc | No commit on main branch
+    id: no-commit-to-branch
+  #
+  - name: Misc | Trim trailing whitespaces
+    id: trailing-whitespace
+  #
+  - name: Misc | Fix end of files
+    id: end-of-file-fixer
+  #
+  - name: Misc | Check toml parsing
+    id: check-toml
+  #
+  - name: Misc | Check yaml parsing
+    id: check-yaml
+  #
+  - name: Misc | Check json parsing
+    id: check-json
+#
+- repo: local
+  hooks:
+  - name: Rust | Format files with rustfmt
+    id: cargo-fmt
+    entry: rustfmt
+    language: system
+    types: [rust]
+  #
+  - name: Rust | Check the package for errors
+    id: cargo-check
+    entry: cargo check
+    language: system
+    types: [rust]
+    pass_filenames: false
+  #
+  - name: Rust | Lint rust sources
+    id: cargo-clippy
+    entry: cargo clippy
+    language: system
+    args: ["--", "-D", "warnings"]
+    types: [rust]
+    pass_filenames: false

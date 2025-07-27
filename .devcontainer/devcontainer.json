@@ -1,0 +1,32 @@
+{
+	"name": "worktree-manager",
+	"workspaceFolder": "${localWorkspaceFolder}",
+	"service": "instance",
+	"overrideCommand": false,
+	"updateRemoteUserUID": false,
+	"initializeCommand": ".devcontainer/initialize.sh",
+	"postCreateCommand": ".devcontainer/postcreate.sh",
+	"dockerComposeFile": [
+		"${localWorkspaceFolder}/.devcontainer/compose.yml",
+		"${localWorkspaceFolder}/.devcontainer/compose.gen.yml",
+		"${localWorkspaceFolder}/.devcontainer/compose.user.yml"
+	],
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"mutantdino.resourcemonitor",
+				"esbenp.prettier-vscode",
+				"DavidAnson.vscode-markdownlint",
+				"ms-azuretools.vscode-docker",
+				"ms-python.vscode-pylance",
+                "rust-lang.rust-analyzer",
+				"tamasfe.even-better-toml",
+				"eamodio.gitlens"
+			],
+			"settings": {
+				"terminal.integrated.defaultProfile.linux": "bash",
+				"terminal.integrated.profiles.linux": { "bash": { "path": "/usr/bin/bash" } }
+			}
+		}
+	}
+}
