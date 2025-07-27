@@ -1,6 +1,7 @@
 use clap::Args;
 use git2::build::{CheckoutBuilder, RepoBuilder};
-use git2::{FetchOptions, Progress, RemoteCallbacks};
+use git2::{ErrorCode, FetchOptions, Progress, RemoteCallbacks};
+// use git2::{Repository, RepositoryInitOptions};
 use std::cell::RefCell;
 use std::ffi::OsString;
 use std::io::{self, Write};
@@ -25,7 +26,34 @@ struct State {
 }
 
 pub(crate) fn subcommand(args: CloneCommand) {
-    clone(args.remote, args.path.unwrap()).unwrap();
+    // let _repo_name = args.remote.clone();
+    // let mut _path = PathBuf::from(args.path.unwrap());
+    // let mut opts = RepositoryInitOptions::new();
+    // opts.bare(true);
+    // let repo = Repository::init_opts("/tmp/test-repository", &opts);
+    // match repo {
+    //     Ok(repo) => {
+    //         let remote = repo
+    //             .remote("origin", args.remote.to_str().unwrap())
+    //             .unwrap();
+    //         let name = remote.name();
+    //         println!("{name:?}");
+    //     }
+    //     Err(error) => {
+    //         panic!("{error:?}")
+    //     }
+    // }
+    match clone(args.remote, args.path.unwrap()) {
+        Ok(()) => (),
+        Err(ref error) => match error.code() {
+            ErrorCode::Exists => {
+                println!("Directory already exists");
+            }
+            _ => {
+                panic!("Unknown error: {error:?}");
+            }
+        },
+    }
 }
 
 fn print(state: &mut State) {
