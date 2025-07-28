@@ -26,23 +26,6 @@ struct State {
 }
 
 pub(crate) fn subcommand(args: CloneCommand) {
-    // let _repo_name = args.remote.clone();
-    // let mut _path = PathBuf::from(args.path.unwrap());
-    // let mut opts = RepositoryInitOptions::new();
-    // opts.bare(true);
-    // let repo = Repository::init_opts("/tmp/test-repository", &opts);
-    // match repo {
-    //     Ok(repo) => {
-    //         let remote = repo
-    //             .remote("origin", args.remote.to_str().unwrap())
-    //             .unwrap();
-    //         let name = remote.name();
-    //         println!("{name:?}");
-    //     }
-    //     Err(error) => {
-    //         panic!("{error:?}")
-    //     }
-    // }
     match clone(args.remote, args.path.unwrap()) {
         Ok(()) => (),
         Err(ref error) => match error.code() {
