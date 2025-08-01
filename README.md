@@ -36,3 +36,14 @@ gitws create <branch>
 # Switch between branches
 gitws
 ```
+
+```bash
+WS_ROOT_DIR=~/workspaces/test/.ws-root
+mkdir -p ${WS_ROOT_DIR}
+git -C ${WS_ROOT_DIR} init --bare
+git -C ${WS_ROOT_DIR} remote add origin https://github.com/xjmpereira/test-worktree-manager.git
+DEFAULT_BRANCH=$(git -C ${WS_ROOT_DIR} ls-remote --symref | sed -n -E 's|^ref: refs/heads/([a-z]+).*|\1|p')
+git -C ${WS_ROOT_DIR} fetch origin $DEFAULT_BRANCH
+git -C ${WS_ROOT_DIR} worktree add ~/workspaces/test/$DEFAULT_BRANCH $DEFAULT_BRANCH
+cd ~/workspaces/test/$DEFAULT_BRANCH
+```
