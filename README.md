@@ -2,14 +2,9 @@
 
 ## Installation
 
-Gitws requires `fzy` to be installed.
-
 ```
-# Install requirements
-sudo apt install fzy
-
 # Install GitWS
-wget -O - https://gitlab.com/johnmperg/gitws/-/raw/v1.2.2/setup.bash | bash
+curl -fsSL https://github.com/xjmpereira/worktree-manager/releases/download/v1.0.0/install.sh | sh
 
 # Required to source bashrc (or create a new terminal)
 source ~/.bashrc
@@ -35,15 +30,4 @@ gitws create <branch>
 
 # Switch between branches
 gitws
-```
-
-```bash
-WS_ROOT_DIR=~/workspaces/test/.ws-root
-mkdir -p ${WS_ROOT_DIR}
-git -C ${WS_ROOT_DIR} init --bare
-git -C ${WS_ROOT_DIR} remote add origin https://github.com/xjmpereira/test-worktree-manager.git
-DEFAULT_BRANCH=$(git -C ${WS_ROOT_DIR} ls-remote --symref | sed -n -E 's|^ref: refs/heads/([a-z]+).*|\1|p')
-git -C ${WS_ROOT_DIR} fetch origin $DEFAULT_BRANCH
-git -C ${WS_ROOT_DIR} worktree add ~/workspaces/test/$DEFAULT_BRANCH $DEFAULT_BRANCH
-cd ~/workspaces/test/$DEFAULT_BRANCH
 ```
